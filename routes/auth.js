@@ -3,6 +3,7 @@ const passport = require("passport");
 const User = require("../models/User");
 const router = express.Router();
 
+router.get("/", (req, res) => res.render("login", { user: req.user }));
 router.get("/login", (req, res) => res.render("login", { user: req.user }));
 router.post(
   "/login",
@@ -19,7 +20,14 @@ router.post("/signup", async (req, res) => {
   try {
     const user = new User({ username, password });
     await user.save();
-    req.login(user, () => res.redirect("/chat"));
+    // req.login(user, () => res.redirect("/chat"));
+    req.login(user, function (err) {
+      if (err) {
+        console.log(err);
+        return next(err);
+      }
+      res.redirect("/chat");
+    });
   } catch (err) {
     res.redirect("/signup");
   }
