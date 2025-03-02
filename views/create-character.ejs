@@ -1,0 +1,8 @@
+<%- include('partials/header') %>
+    <h2>Create New Character</h2>
+    <form action="/chat/create-character" method="POST">
+        <input type="text" name="name" placeholder="Character Name" required>
+        <textarea name="personality" placeholder="Personality" required></textarea>
+        <button type="submit">Create</button>
+    </form>
+    <%- include('partials/footer') %>

@@ -1,0 +1,21 @@
+<%- include('partials/header') %>
+    <div class="chat-container">
+        <div class="character-list">
+            <h3>Characters</h3>
+            <ul>
+                <% characters.forEach(character=> { %>
+                    <li data-character-id="<%= character._id %>">
+                        <%= character.name %>
+                    </li>
+                    <% }) %>
+            </ul>
+        </div>
+        <div class="chat-area">
+            <div class="messages" id="messages"></div>
+            <form id="message-form">
+                <input type="text" id="message-input" placeholder="Type a message..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    <%- include('partials/footer') %>
