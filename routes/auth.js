@@ -14,25 +14,13 @@ router.post(
   })
 );
 
+router.get("/test-flash", (req, res) => {
+  req.flash("success", "This is a test success message");
+  req.flash("error", "This is a test error message");
+  res.redirect("/signup");
+});
+
 router.get("/signup", (req, res) => res.render("signup", { user: req.user }));
-// router.post("/signup", async (req, res) => {
-//   const { username, password } = req.body;
-//   try {
-//     const existingUser = await User.findOne({ username });
-//     const user = new User({ username, password });
-//     await user.save();
-//     // req.login(user, () => res.redirect("/chat"));
-//     req.login(user, function (err) {
-//       if (err) {
-//         console.log(err);
-//         return next(err);
-//       }
-//       res.redirect("/chat");
-//     });
-//   } catch (err) {
-//     res.redirect("/signup");
-//   }
-// });
 
 router.post("/signup", async (req, res, next) => {
   const { username, password } = req.body;

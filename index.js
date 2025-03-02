@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const passport = require("passport");
 const passportLocal = require("passport-local");
+const flash = require("connect-flash");
 const path = require("path");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
@@ -72,6 +73,15 @@ app.use(
 app.use(passport.initialize());
 
 app.use(passport.session());
+
+app.use(flash());
+
+app.use((req, res, next) => {
+  console.log("Flash messages:", req.flash());
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
 
 app.use("/", authRoutes);
 app.use("/chat", chatRoutes);

@@ -13,6 +13,8 @@
         <nav>
             <h1>AI Chatbot</h1>
             <% if (user) { %>
+                <h1>Hi <%= user.username %>
+                </h1>
                 <a href="/chat">Chat</a>
                 <a href="/chat/create-character">Create Character</a>
                 <a href="/logout">Logout</a>
@@ -21,5 +23,18 @@
                     <a href="/signup">Signup</a>
                     <% } %>
         </nav>
+        <div>
+            <% if (error && error.length) { %>
+                <div class="error">
+                    <%= error %>
+                </div>
+                <% } %>
+                    <% if (success && success.length) { %>
+                        <div class="message">
+                            <%= success%>
+                        </div>
+                        <% } %>
+
+        </div>
     </header>
     <main>
