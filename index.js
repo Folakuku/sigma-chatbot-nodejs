@@ -64,8 +64,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(
   session({
     secret: "oneboy",
-    saveUninitialized: true,
-    resave: true,
+    saveUninitialized: false,
+    resave: false,
   })
 );
 
@@ -79,8 +79,8 @@ app.use("/chat", chatRoutes);
 // Predefined Characters
 const initCharacters = async () => {
   try {
-    const count = await Character.countDocuments({ isPredefined: true });
-    if (count === 0) {
+    const count = await Character.findOne({ isPredefined: true });
+    if (!count) {
       await Character.insertMany([
         {
           name: "Chuck the Clown",
@@ -111,7 +111,7 @@ const initCharacters = async () => {
     console.log(error);
   }
 };
-initCharacters();
+// initCharacters();
 
 app.listen(process.env.PORT, () => {
   console.log(`Running on http://localhost:${process.env.PORT}`);

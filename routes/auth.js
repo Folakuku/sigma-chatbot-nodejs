@@ -15,28 +15,56 @@ router.post(
 );
 
 router.get("/signup", (req, res) => res.render("signup", { user: req.user }));
-router.post("/signup", async (req, res) => {
+// router.post("/signup", async (req, res) => {
+//   const { username, password } = req.body;
+//   try {
+//     const existingUser = await User.findOne({ username });
+//     const user = new User({ username, password });
+//     await user.save();
+//     // req.login(user, () => res.redirect("/chat"));
+//     req.login(user, function (err) {
+//       if (err) {
+//         console.log(err);
+//         return next(err);
+//       }
+//       res.redirect("/chat");
+//     });
+//   } catch (err) {
+//     res.redirect("/signup");
+//   }
+// });
+
+router.post("/signup", async (req, res, next) => {
   const { username, password } = req.body;
+
   try {
+    // First check if user exists
     const existingUser = await User.findOne({ username });
+
     if (existingUser) {
-      return passport.authenticate("local", {
+      // If user exists, attempt to log them in
+      passport.authenticate("local", {
         successRedirect: "/chat",
         failureRedirect: "/login",
         failureFlash: true,
+      })(req, res, next);
+    } else {
+      // If user doesn't exist, create new user
+      const user = new User({ username, password });
+      await user.save();
+
+      req.login(user, (err) => {
+        if (err) {
+          console.error("Login error after signup:", err);
+          return next(err);
+        }
+        res.redirect("/chat");
       });
     }
-    const user = new User({ username, password });
-    await user.save();
-    // req.login(user, () => res.redirect("/chat"));
-    req.login(user, function (err) {
-      if (err) {
-        console.log(err);
-        return next(err);
-      }
-      res.redirect("/chat");
-    });
   } catch (err) {
+    console.error("Signup error:", err);
+    // Redirect to signup with error message
+    req.flash("error", "An error occurred during signup");
     res.redirect("/signup");
   }
 });
