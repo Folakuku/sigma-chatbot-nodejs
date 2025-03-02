@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const conversationSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   character: { type: mongoose.Schema.Types.ObjectId, ref: "Character" },
+  thread_id: String,
   messages: [
     {
       sender: String, // 'user' or 'character'

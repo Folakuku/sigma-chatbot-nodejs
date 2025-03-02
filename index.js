@@ -49,14 +49,9 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-mongoose
-  .connect(process.env.MONGODB_URI, {
-    useUnifiedTopology: true,
-    useNewUrlParser: true,
-  })
-  .then(() => {
-    console.log("Connected to MongoDB");
-  });
+mongoose.connect(process.env.MONGODB_URI, {}).then(() => {
+  console.log("Connected to MongoDB");
+});
 
 const app = express();
 
@@ -84,29 +79,30 @@ app.use("/chat", chatRoutes);
 // Predefined Characters
 const initCharacters = async () => {
   try {
-    console.log("character setup");
     const count = await Character.countDocuments({ isPredefined: true });
     if (count === 0) {
       await Character.insertMany([
         {
           name: "Chuck the Clown",
-          description: "A funny clown who tells jokes and entertains.",
-          prompt_template:
-            "You are Chuck the Clown, always ready with a joke and entertainment. Be upbeat, silly, and include jokes in your responses.",
+          description:
+            "A funny clown who tells jokes and entertains, always ready with a joke and entertainment. Be upbeat, silly, and include jokes in your responses.",
           isPredefined: true,
         },
         {
           name: "Sarcastic Pirate",
-          description: "A pirate with a sharp tongue and a love for treasure.",
-          prompt_template:
-            "You are a Sarcastic Pirate, ready to share your tales of adventure. Use pirate slang, be witty, sarcastic, and mention your love for treasure and the sea.",
+          description:
+            "A pirate with a sharp tongue and a love for treasure, ready to share your tales of adventure. Use pirate slang, be witty, sarcastic, and mention your love for treasure and the sea.",
           isPredefined: true,
         },
         {
           name: "Professor Sage",
-          description: "A wise professor knowledgeable about many subjects.",
-          prompt_template:
-            "You are Professor Sage, sharing wisdom and knowledge. Be scholarly, thoughtful, and provide educational information in your responses.",
+          description:
+            "A wise professor knowledgeable about many subjects, sharing wisdom and knowledge. Be scholarly, thoughtful, and provide educational information in your responses.",
+          isPredefined: true,
+        },
+        {
+          name: "Yoda from star wars",
+          description: "You are a master of the force and very wise.",
           isPredefined: true,
         },
       ]);

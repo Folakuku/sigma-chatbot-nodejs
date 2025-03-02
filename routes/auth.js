@@ -3,7 +3,7 @@ const passport = require("passport");
 const User = require("../models/User");
 const router = express.Router();
 
-router.get("/", (req, res) => res.render("login", { user: req.user }));
+router.get("/", (req, res) => res.render("signup", { user: req.user }));
 router.get("/login", (req, res) => res.render("login", { user: req.user }));
 router.post(
   "/login",
@@ -18,6 +18,14 @@ router.get("/signup", (req, res) => res.render("signup", { user: req.user }));
 router.post("/signup", async (req, res) => {
   const { username, password } = req.body;
   try {
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return passport.authenticate("local", {
+        successRedirect: "/chat",
+        failureRedirect: "/login",
+        failureFlash: true,
+      });
+    }
     const user = new User({ username, password });
     await user.save();
     // req.login(user, () => res.redirect("/chat"));
@@ -34,8 +42,12 @@ router.post("/signup", async (req, res) => {
 });
 
 router.get("/logout", (req, res) => {
-  req.logout();
-  res.redirect("/login");
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
 });
 
 module.exports = router;

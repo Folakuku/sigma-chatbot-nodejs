@@ -3,16 +3,9 @@ const router = express.Router();
 const Character = require("../models/Character");
 const Conversation = require("../models/Conversation");
 const { ensureAuthenticated } = require("../middleware");
-const { ChatGroq } = require("@langchain/groq");
-const { HumanMessage, SystemMessage } = require("@langchain/core/messages");
-
-const model = new ChatGroq({
-  model: "mixtral-8x7b-32768",
-  temperature: 0,
-});
+const { sendMessage } = require("../utils/ai");
 
 router.get("/", ensureAuthenticated, async (req, res) => {
-  console.log("Chats");
   const characters = await Character.find({
     $or: [{ creator: req.user._id }, { isPredefined: true }],
   });
@@ -38,11 +31,13 @@ router.post("/create-character", ensureAuthenticated, async (req, res) => {
 router.post("/message", ensureAuthenticated, async (req, res) => {
   const { characterId, message } = req.body;
 
+  let newConvo = false;
   let conversation = await Conversation.findOne({
     user: req.user._id,
     character: characterId,
   });
   if (!conversation) {
+    newConvo = true;
     conversation = new Conversation({
       user: req.user._id,
       character: characterId,
@@ -51,21 +46,38 @@ router.post("/message", ensureAuthenticated, async (req, res) => {
   }
   conversation.messages.push({ sender: "user", content: message });
 
-  // Placeholder for AI response (LangChain integration would go here)
   const character = await Character.findById(characterId);
 
-  const messages = [
-    new SystemMessage(character.prompt_template),
-    new HumanMessage(message),
+  let messages = [
+    {
+      role: "system",
+      content: `Your name is ${character.name} and you are ${character.description}`,
+    },
+
+    { role: "user", content: message },
   ];
 
-  const aiResponse = await model.invoke(messages);
-  console.log(aiResponse);
+  if (!newConvo) {
+    messages.shift();
+  }
+
+  const { output, thread_id } = await sendMessage(
+    messages,
+    conversation.thread_id
+  );
+
+  // The output contains all messages in the state.
+  // This will log the last message in the conversation.
+  const aiResponse = output.messages[output.messages.length - 1];
+
+  // console.log(aiResponse.content);
 
   conversation.messages.push({
     sender: "character",
     content: aiResponse.content,
   });
+
+  conversation.thread_id = thread_id;
 
   await conversation.save();
   res.json({ messages: conversation.messages });
