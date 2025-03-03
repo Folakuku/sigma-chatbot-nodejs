@@ -17,7 +17,7 @@ router.post(
 router.get("/test-flash", (req, res) => {
   req.flash("success", "This is a test success message");
   req.flash("error", "This is a test error message");
-  res.redirect("/signup");
+  res.render("signup", { user: req.user });
 });
 
 router.get("/signup", (req, res) => res.render("signup", { user: req.user }));
